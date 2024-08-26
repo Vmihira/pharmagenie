@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Pharma Genie{% endblock %}
+
+{% block content %}
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("{{ url_for('static', filename='images/home_bg.jpg') }}");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #3fb58d;
+        }
+
+        .content {
+            max-width: 70%;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-sizing: border-box;
+        }
+
+        .content img {
+            max-width: 350px;
+            height: auto;
+            border-radius: 10px;
+            animation: moveUpDown 2s ease-in-out infinite; /* Added animation */
+        }
+
+        .content h2 {
+            font-size: 250%;
+            color: #3fb58d;
+        }
+
+        .content p {
+            font-size: 1.3rem;
+            color: #333;
+        }
+
+        .content a.btn-success {
+            background-color: #3fb58d;
+            border-color: #3fb58d;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .content a.btn-success:hover {
+            background-color: #34a853;
+            border-color: #34a853;
+        }
+
+        @keyframes moveUpDown {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px); /* Adjust the value for more or less movement */
+            }
+        }
+    </style>
+
+    <div class="background-image">
+        <div class="content">
+            <img src="{{ url_for('static', filename='images/home_genie.jpg') }}" alt="Pharma Genie Image">
+            <div>
+                <h2>Welcome to Pharma Genie</h2>
+                <p>A perfect platform to sell your unwanted medicines.</p>
+                <!--<a href="/user/register" class="btn btn-success">Get Started</a>-->
+            </div>
+        </div>
+    </div>
+{% endblock %}

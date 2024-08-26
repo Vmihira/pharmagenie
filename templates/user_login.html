@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Pharma Genie{% endblock %}
+
+{% block content %}
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form_box {
+            background-color: #e6f0ff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 400px;
+            transition: transform 0.2s ease-in-out; /* Smooth transition */
+        }
+
+        #title {
+            font-size: 1.75rem;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #0066ff;
+        }
+
+        .input_group {
+            margin-bottom: 25px;
+        }
+
+        .input_field_wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            transition: transform 0.2s ease-in-out; /* Smooth transition */
+        }
+
+        .input_field_wrapper:hover {
+            transform: scale(1.05); /* Enlarge slightly on hover */
+        }
+
+        .input_field_wrapper i {
+            margin-right: 12px;
+            color: #0066ff;
+            font-size: 18px;
+        }
+
+        .input_field {
+            background-color: #fff;
+            border: 1px solid #ced4da;
+            border-radius: 25px; /* Make the corners rounded */
+            padding: 12px;
+            width: 100%;
+            border: none;
+            outline: none;
+        }
+
+        .rounded-button {
+            background-color: #0066ff;
+            color: white;
+            border: none;
+            border-radius: 25px; /* Make the corners rounded */
+            width: 100%;
+            padding: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .rounded-button:hover {
+            background-color: #004cbf;
+        }
+
+        .image_container {
+            margin-left: 60px;
+        }
+
+        .image_container img {
+            max-width: 550px;
+            height: auto;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .image_container {
+                margin-left: 0;
+                margin-top: 20px;
+            }
+
+            .form_box {
+                width: 100%;
+            }
+
+            .image_container img {
+                max-width: 100%;
+            }
+        }
+    </style>
+
+    <!-- Include Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Placeholder for the navbar content -->
+    <div id="navbar-placeholder"></div>
+
+    <div class="container">
+        <div class="form_box">
+            <h1 id="title">Sign In</h1>
+            <form method="POST">
+                <div class="input_group">
+                    <div class="input_field_wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" name="email" class="input_field" placeholder="Email" required />
+                    </div>
+                    <div class="input_field_wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" class="input_field" placeholder="Password" required />
+                    </div>
+                </div>
+                <button type="submit" class="rounded-button">Submit</button>
+            </form>
+        </div>
+        <div class="image_container">
+            <img src="{{ url_for('static', filename='images/user_login_img.png') }}" alt="Pharma Genie Image">
+        </div>
+    </div>
+{% endblock %}

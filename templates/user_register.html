@@ -1,0 +1,143 @@
+{% extends "base.html" %} {% block title %}User Register{% endblock %} {% block
+content %}
+<style>
+  @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
+
+  body {
+    font-family: "Arial", sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-image: url("{{ url_for('static', filename='images/background.png') }}");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+  }
+
+  .register-container {
+    background-color: #e8f0fe;
+    padding: 30px 50px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    text-align: left;
+    margin-right: 30px;
+  }
+
+  .register-container h2 {
+    color: #1a73e8;
+    font-size: 35px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .input-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .input-container i {
+    margin-right: 10px;
+    color: #1a73e8;
+    font-size: 18px;
+  }
+
+  .input-container input[type="text"],
+  .input-container input[type="email"],
+  .input-container input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dfe1e5;
+    border-radius: 20px;
+    box-sizing: border-box;
+  }
+
+  .register-container input[type="submit"] {
+    background-color: #1a73e8;
+    color: white;
+    padding: 12px;
+    margin-left: 25%;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    width: 50%;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+  }
+
+  .register-container input[type="submit"]:hover {
+    background-color: #1664c1;
+  }
+
+  .register-container .login-link {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .register-container .login-link a {
+    color: #1a73e8;
+    text-decoration: none;
+  }
+
+  .illustration {
+    max-width: 500px;
+    width: 100%;
+    height: auto;
+    margin-left: 40px;
+  }
+
+  .content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
+
+<div class="content">
+  <div class="register-container">
+    <h2>Sign Up</h2>
+    <form method="POST">
+      <div class="input-container">
+        <i class="fas fa-user"></i>
+        <input type="text" name="name" placeholder="Name" required />
+      </div>
+      <div class="input-container">
+        <i class="fas fa-envelope"></i>
+        <input type="email" name="email" placeholder="Email" required />
+      </div>
+      <div class="input-container">
+        <i class="fas fa-lock"></i>
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          required
+        />
+      </div>
+      <div class="terms_conditions">
+        <input type="checkbox" id="terms" name="terms" />
+        <label for="terms"
+          >I agree to the
+          <a href="/user/terms_conditions" target="_blank"
+            >Terms and Conditions</a
+          ></label
+        >
+      </div>
+      <input type="submit" value="Register" />
+    </form>
+  </div>
+  <img
+    src="{{ url_for('static', filename='images/user_login_img.png') }}"
+    alt="Register Illustration"
+    class="illustration"
+  />
+</div>
+{% endblock %}

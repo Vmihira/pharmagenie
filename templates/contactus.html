@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Pharma Genie{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(173, 216, 230, 0.8));
+    }
+
+    .contact-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        padding-top: 0;
+        box-sizing: border-box;
+    }
+
+    .contact-form {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .contact-form h2 {
+        margin-top: 30px;
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+        text-align: center;
+    }
+
+    .contact-form form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .contact-form label {
+        margin-bottom: 10px;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    .contact-form button {
+        padding: 10px;
+        background-color: #00BFFF;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+
+    .contact-form button:hover {
+        background-color: #0099cc;
+    }
+
+    .contact-image {
+        display: none; /* Hide the image on small screens */
+        margin-left: 20px;
+    }
+
+    .contact-image img {
+        max-width: 600px;
+        width: 100%;
+    }
+
+    /* Responsive Design */
+    @media (min-width: 768px) {
+        .contact-container {
+            flex-direction: row;
+        }
+
+        .contact-image {
+            display: block;
+        }
+    }
+</style>
+
+<div class="contact-container">
+    <div class="contact-form">
+        <h2>Contact us</h2>
+        <form>
+            <label for="name">
+                <input type="text" id="name" name="name" placeholder="Name" required>
+            </label>
+            <label for="email">
+                <input type="email" id="email" name="email" placeholder="Email" required>
+            </label>
+            <label for="message">
+                <textarea id="message" name="message" placeholder="Message" required></textarea>
+            </label>
+            <a href="mailto:vinjamurimihira@gmail.com">
+                <button type="button">Send Message</button>
+            </a>            
+        </form>
+    </div>
+    <div class="contact-image">
+        <img src="{{ url_for('static', filename='images/contactus_img.png') }}" alt="Pharma Genie Image">
+    </div>
+</div>
+
+
+{% endblock %}

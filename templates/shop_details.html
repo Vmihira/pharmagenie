@@ -1,0 +1,128 @@
+{% extends "base.html" %} {% block title %}Shop Details{% endblock %} {% block
+head %}
+<style>
+  body {
+    background-image: url("{{ url_for('static', filename='images/user_maps_bg.jpg') }}");
+    background-size: cover;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+  }
+
+  .content-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 50px;
+    padding: 50px 20px;
+  }
+
+  .shop-details,
+  .medicines-sale {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 400px;
+    flex: 1;
+  }
+
+  .shop-details:hover,
+  .medicines-sale:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  h2,
+  h3 {
+    color: #1a5276;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    animation: fadeInDown 1s ease;
+  }
+
+  p {
+    color: #34495e;
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .medicines-sale ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .medicines-sale li {
+    background-color: #f0f8ff;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+
+  .medicines-sale li:hover {
+    transform: scale(1.05);
+  }
+
+  .btn {
+    display: inline-block;
+    background-color: #0066ff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 10px;
+    margin-left: 35px;
+  }
+
+  .btn:hover {
+    background-color: #004cbf;
+    transform: scale(1.05);
+    color: white;
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="content-container">
+  <div class="shop-details">
+    <h2>Shop Details</h2>
+    <p><strong>Shop Name:</strong> {{ shop.shop_name }}</p>
+    <p><strong>Email:</strong> {{ shop.email }}</p>
+    <p><strong>Location:</strong> {{ shop.latitude }}, {{ shop.longitude }}</p>
+  </div>
+
+  <div class="medicines-sale">
+    <h3>Medicines for Sale</h3>
+    <ul>
+      {% for medicine in medicines %}
+      <li>
+        {{ medicine.medicine_name }} &nbsp;&nbsp; {{medicine.price}}.Rs
+        <a
+          href="/resell_medicine/{{ shop.username }}/{{username}}/{{medicine.medicine_name}}"
+          class="btn"
+          style="padding-left: 15px"
+          >Resell</a
+        >
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

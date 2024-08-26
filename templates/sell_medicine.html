@@ -1,0 +1,181 @@
+{% extends "base.html" %} {% block title %}Sell Medicine{% endblock %} {% block
+content %}
+
+<style>
+  body {
+    background-color: #f0f8ff;
+    animation: fadeIn 1.5s;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .form-container {
+    margin: 5px auto;
+    padding: 20px;
+    max-width: 900px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    display: flex;
+    background-color: #f7fafa;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation: slideIn 1s;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .form-content {
+    flex: 1;
+  }
+
+  .input-box {
+    /*border: 2px solid ;*/
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);*/
+  }
+
+  .image-container {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .image-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    animation: fadeIn 1.5s;
+  }
+
+  .heading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 50px auto 20px;
+    max-width: 900px;
+    animation: slideDown 1.5s;
+  }
+
+  @keyframes slideDown {
+    from {
+      transform: translateY(-50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .rounded-button {
+    background-color: #0066ff;
+    color: white;
+    border: none;
+    border-radius: 25px; /* Make the corners rounded */
+    width: 50%;
+    padding: 12px;
+    cursor: pointer;
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .rounded-button:hover {
+    background-color: #004cbf;
+  }
+</style>
+
+<div class="container mt-5">
+  <div class="heading-container">
+    <h1>Sell Medicine</h1>
+  </div>
+  <div class="form-container">
+    <div class="form-content">
+      <div class="input-box">
+        <form method="POST" class="row g-3">
+          <div class="col-md-12">
+            <label for="name" class="form-label">Your Name</label>
+            <input
+              type="text"
+              class="form-control hover-lift"
+              id="name"
+              name="name"
+              placeholder="Your Name"
+              required
+            />
+          </div>
+          <div class="col-md-12">
+            <label for="medicine_name" class="form-label">Medicine Name</label>
+            <input
+              type="text"
+              class="form-control hover-lift"
+              id="medicine_name"
+              name="medicine_name"
+              placeholder="Medicine Name"
+              required
+            />
+          </div>
+          <div class="col-md-12">
+            <label for="count" class="form-label">Price</label>
+            <input
+              type="number"
+              class="form-control hover-lift"
+              id="count"
+              name="price"
+              placeholder="Price of each medicine"
+              required
+            />
+          </div>
+          <div class="col-md-12">
+            <label for="count" class="form-label">Quantity</label>
+            <input
+              type="number"
+              class="form-control hover-lift"
+              id="count"
+              name="count"
+              placeholder="Quantity"
+              required
+            />
+          </div>
+          <div class="col-12 text-center">
+            <input type="submit" class="rounded-button" value="Sell" />
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="image-container">
+      <img
+        src="{{ url_for('static', filename='images/user_form_bg.jpg') }}"
+        alt="Pharma Genie Image"
+      />
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %} {% block title %}Map View{% endblock %} {% block head
+%}
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+/>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+<style>
+  body {
+    /*margin: 0;*/
+    font-family: Arial, sans-serif;
+    background-image: linear-gradient(
+      rgba(255, 255, 255, 0.9),
+      rgba(173, 216, 230, 0.8)
+    );
+  }
+
+  .content-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px 20px 0; /* Removed padding from left */
+    margin-top: 20px;
+  }
+
+  .image-container {
+    flex: 0 0 25%;
+    margin-left: 0; /* Reduced left margin */
+    padding-left: 0;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: moveUpDown 1s ease-in-out infinite alternate; /* Up and down animation */
+  }
+
+  .image-container img {
+    width: 400px;
+    height: 500px;
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+  }
+
+  .image-container:hover img {
+    transform: scale(1.05); /* Slight zoom on hover */
+  }
+
+  .map-container {
+    flex: 0 0 75%;
+    border-radius: 15px; /* Rounded edges */
+    overflow: hidden;
+    border: 3px solid #87ceeb; /* Light blue border */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .map-container:hover {
+    transform: scale(1.02); /* Slight zoom on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  }
+
+  @keyframes moveUpDown {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-30px); /* Moves up by 30px */
+    }
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    animation: fadeInDown 1s ease;
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<input type="hidden" value="{{ shops }}" id="milli" />
+<input type="hidden" value="{{ username }}" id="username" />
+
+<div class="content-container">
+  <div class="image-container">
+    <img
+      src="{{ url_for('static', filename='images/home_genie.jpg') }}"
+      alt="Pharma Genie Image"
+    />
+  </div>
+
+  <div id="map" class="map-container" style="height: 600px"></div>
+</div>
+
+<script>
+  var map = L.map("map").setView([51.505, -0.09], 13);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+
+  var markers = L.markerClusterGroup();
+
+  // Safely parse shops data from hidden input
+  const shops_data = document.getElementById("milli").value;
+  const shops = JSON.parse(shops_data);
+  const username = document.getElementById("username").value;
+
+  shops.forEach(function (shop) {
+    var marker = L.marker([shop.latitude, shop.longitude]).bindPopup(
+      "<b>" +
+        shop.shop_name +
+        "</b><br>" +
+        shop.email +
+        "<br><a href='/shop_details/" +
+        shop._id +
+        "/" +
+        username +
+        "'>Details</a>"
+    );
+    markers.addLayer(marker);
+  });
+
+  map.addLayer(markers);
+
+  map.locate({ setView: true, maxZoom: 16 });
+
+  function onLocationFound(e) {
+    var radius = e.accuracy / 2;
+    var location = [e.latitude, e.longitude];
+    L.marker(location)
+      .addTo(map)
+      .bindPopup("You are within " + radius + " meters from this point")
+      .openPopup();
+    L.circle(location, radius).addTo(map);
+  }
+
+  map.on("locationfound", onLocationFound);
+</script>
+{% endblock %}
