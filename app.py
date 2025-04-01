@@ -9,7 +9,7 @@ import math
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-urls = "mongodb+srv://vinjamurimihira:Vmihira@2004@askmebot.y3tx6.mongodb.net/?retryWrites=true&w=majority&appName=AskMeBot"
+urls = "mongodb+srv://vinjamurimihira:Vmihira2004@askmebot.y3tx6.mongodb.net/?retryWrites=true&w=majority&appName=AskMeBot"
 mongo = MongoClient(urls)
 
 app.config.update(
