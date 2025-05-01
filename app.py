@@ -43,7 +43,7 @@ def services_render(username):
 def user_register():
     print("========================================================================  TESTING REGISTRATION =====================================")
     if request.method == 'POST':
-        users = mongo.db.users
+        users = db.users
         existing_user = users.find_one({'email': request.form['email']})
         if existing_user is None:
             hashpass = generate_password_hash(request.form['password'])
@@ -63,7 +63,7 @@ def user_register():
 @app.route('/user/login', methods=['GET', 'POST'])
 def user_login():
     if request.method == 'POST':
-        users = mongo.db.users
+        users = db.users
         email = request.form['email']
         login_user = users.find_one({'email': email})
         if login_user:
@@ -84,7 +84,7 @@ def user_dashboard(username):
 @app.route('/user/sell_medicine/<username>', methods=['GET', 'POST'])
 def sell_medicine(username):
     if 'user_id' in session and session['user_type'] == 'user':
-        users = mongo.db.users
+        users = db.users
         if request.method == 'POST':
             medicne_count = request.form['count']
             medicine_price = request.form['price']
@@ -102,10 +102,10 @@ def sell_medicine(username):
 @app.route('/map_view/<username>')
 def map_view(username):
     if 'user_id' in session and session['user_type'] == 'user':
-        users = mongo.db.users
+        users = db.users
         temp = users.find_one({'username': username})
         medicine_listing = temp['medicines_fs']
-        shops = list(mongo.db.users.find({'user_type': 'owner'}))
+        shops = list(db.users.find({'user_type': 'owner'}))
         for shop in shops:
             shop['_id'] = str(shop['_id'])
         print('-------------------------------------------------------------')
@@ -117,8 +117,8 @@ def map_view(username):
 @app.route('/map_view_owner/<username>')
 def map_view_owners(username):
    
-        users = mongo.db.users
-        shops = list(mongo.db.users.find({'user_type': 'owner'}))
+        users = db.users
+        shops = list(db.users.find({'user_type': 'owner'}))
         for shop in shops:
             shop['_id'] = str(shop['_id'])
         print('-------------------------------------------------------------')
@@ -131,10 +131,10 @@ def map_view_owners(username):
 @app.route('/shop_details/<shop_id>/<username>')
 def shop_details(shop_id , username):
     if 'user_id' in session and session['user_type'] == 'user':
-        users = mongo.db.users
+        users = db.users
         temp = users.find_one({'username': username})
         medicine_listing = temp['medicines_fs']
-        shop = mongo.db.users.find_one({'_id': ObjectId(shop_id), 'user_type': 'owner'})
+        shop = db.users.find_one({'_id': ObjectId(shop_id), 'user_type': 'owner'})
         return render_template('shop_details.html', shop=shop , medicines=medicine_listing , username = username)
     return redirect(url_for('user_login'))
 
@@ -153,7 +153,7 @@ def owner_accepted(owner_username, user_username):
 @app.route('/sell_requests/<owner_username>')
 def sell_requests(owner_username):
    
-        users = mongo.db.users
+        users = db.users
         owner = users.find_one({'username': owner_username})
         sell_requests = owner['sell_requests']
         return render_template('owner_waitlist.html', sell_requests=sell_requests , owner_username = owner_username)
@@ -161,7 +161,7 @@ def sell_requests(owner_username):
 @app.route('/medicines_bought/<owner_username>')
 def medicines_bought(owner_username):
    
-        users = mongo.db.users
+        users = db.users
         owner = users.find_one({'username': owner_username})
         medi_bought = owner['medicines_bought']
         return render_template('owner_bought.html', medi_bought = medi_bought , owner_username = owner_username)
@@ -169,18 +169,18 @@ def medicines_bought(owner_username):
 @app.route('/medicines_sold/<user_username>')
 def medicines_sold(user_username):
    
-        users = mongo.db.users
+        users = db.users
         owner = users.find_one({'username': user_username})
         medi_sold = owner['medicines_sold']
         return render_template('user_sold.html', medi_sold = medi_sold , owner_username = user_username)
             
 
 def add_owner_list(owner_username , user_username):
-    users = mongo.db.users
+    users = db.users
     users.update_one({'username': owner_username}, {"$push": {"sell_requests": user_username}})
     
 def remove_owner_list(owner_username , user_username):
-    users = mongo.db.users
+    users = db.users
     users.update_one({'username': owner_username}, {"$pull": {"sell_requests": user_username}})
     users.update_one({'username': owner_username}, {"$push": {"medicines_bought": user_username}})
     users.update_one({'username': user_username.split()[0]}, {"$push": {"medicines_sold" : owner_username + ' ' + user_username.split()[0]}})
@@ -189,7 +189,7 @@ def remove_owner_list(owner_username , user_username):
 @app.route('/owner/register', methods=['GET', 'POST'])
 def owner_register():
     if request.method == 'POST':
-        owners = mongo.db.users
+        owners = db.users
         existing_owner = owners.find_one({'email': request.form['email']})
         if existing_owner is None:
             email = request.form['email']
@@ -213,7 +213,7 @@ def owner_register():
 @app.route('/owner/login', methods=['GET', 'POST'])
 def owner_login():
     if request.method == 'POST':
-        owners = mongo.db.users
+        owners = db.users
         email = request.form['email']
         login_owner = owners.find_one({'email': email, 'user_type': 'owner'})
         if login_owner:
