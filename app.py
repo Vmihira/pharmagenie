@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 # Replace with your actual connection string
-MONGO_URI = "mongodb+srv://vinjamurimihira:Vmihira2004@cluster0.di7rite.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+MONGO_URI = "mongodb+srv://VinjamuriMihira:Vmihira2004@cluster0.kun5tdr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 
 client = MongoClient(MONGO_URI)
