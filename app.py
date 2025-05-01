@@ -10,14 +10,9 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 # Replace with your actual connection string
-MONGO_URI = (
-    "mongodb+srv://"
-    "vinjamurimihira:Vmihira2004"
-    "@askmebot.y3tx6.mongodb.net"
-    "/?authSource=admin"
-    "&retryWrites=true&w=majority"
-    "&appName=AskMeBot"
-)
+MONGO_URI = "mongodb+srv://vinjamurimihira:Vmihira2004@askmebot.y3tx6.mongodb.net/?retryWrites=true&w=majority&appName=AskMeBot"
+
+
 client = MongoClient(MONGO_URI)
 db = client['askmebot']
 
