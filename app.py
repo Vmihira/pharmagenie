@@ -1,31 +1,25 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_pymongo import PyMongo
 from werkzeug.security import generate_password_hash, check_password_hash
-from bson import ObjectId
+from bson.objectid import ObjectId
 import os
-from pymongo import MongoClient
 import json
 import math
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-#urls = "mongodb+srv://vinjamurimihira:Vmihira2004@askmebot.y3tx6.mongodb.net/?retryWrites=true&w=majority&appName=AskMeBot"
-MONGO_URI = (
-    "mongodb+srv://"
-    "vinjamurimihira:Vmihira2004"
-    "@askmebot.y3tx6.mongodb.net"
-    "/?authSource=admin"
-    "&retryWrites=true&w=majority"
-    "&appName=AskMeBot"
-)
-mongo = MongoClient(MONGO_URI)
-db = mongo['askmebot']
+
+# Use this line only — configure PyMongo properly
+app.config["MONGO_URI"] = "mongodb+srv://vinjamurimihira:Vmihira2004@askmebot.y3tx6.mongodb.net/?retryWrites=true&w=majority&appName=AskMeBot"
+mongo = PyMongo(app)
+db = mongo.db  # This is your database object
 
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
-    SESSION_COOKIE_SECURE=True,  # Ensure this is only True if you are using HTTPS
+    SESSION_COOKIE_SECURE=True,  # Only True if you're using HTTPS
 )
+
 
 @app.route('/')
 def index():
