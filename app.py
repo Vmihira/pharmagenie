@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-from flask_pymongo import PyMongo
 from werkzeug.security import generate_password_hash, check_password_hash
-from bson.objectid import ObjectId
+from pymongo import MongoClient
+from bson import ObjectId
 import os
 import json
 import math
@@ -9,17 +9,23 @@ import math
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Use this line only — configure PyMongo properly
-app.config["MONGO_URI"] = "mongodb+srv://vinjamurimihira:Vmihira2004@askmebot.y3tx6.mongodb.net/?retryWrites=true&w=majority&appName=AskMeBot"
-mongo = PyMongo(app)
-db = mongo.db  # This is your database object
+# Replace with your actual connection string
+MONGO_URI = (
+    "mongodb+srv://"
+    "vinjamurimihira:Vmihira2004"
+    "@askmebot.y3tx6.mongodb.net"
+    "/?authSource=admin"
+    "&retryWrites=true&w=majority"
+    "&appName=AskMeBot"
+)
+client = MongoClient(MONGO_URI)
+db = client['askmebot']
 
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
-    SESSION_COOKIE_SECURE=True,  # Only True if you're using HTTPS
+    SESSION_COOKIE_SECURE=True,  # Set True when running under HTTPS
 )
-
 
 @app.route('/')
 def index():
@@ -31,211 +37,229 @@ def services():
 
 @app.route('/services/<username>')
 def services_render(username):
-    return render_template('services.html' , username = username)
+    return render_template('services.html', username=username)
 
 @app.route('/user/register', methods=['GET', 'POST'])
 def user_register():
-    print("========================================================================  TESTING REGISTRATION =====================================")
     if request.method == 'POST':
         users = db.users
-        existing_user = users.find_one({'email': request.form['email']})
-        if existing_user is None:
-            hashpass = generate_password_hash(request.form['password'])
+        if users.find_one({'email': request.form['email']}) is None:
+            hashed = generate_password_hash(request.form['password'])
             users.insert_one({
                 'name': request.form['name'],
                 'email': request.form['email'],
-                'username' : request.form['email'][0:-10],
-                'password': hashpass,
+                'username': request.form['email'][:-10],
+                'password': hashed,
                 'user_type': 'user',
-                'medicines_fs' : [] ,
-                'medicines_sold' : []
+                'medicines_fs': [],
+                'medicines_sold': []
             })
             return redirect(url_for('user_login'))
-        return 'Email already registered'
+        return 'Email already registered', 400
     return render_template('user_register.html')
 
 @app.route('/user/login', methods=['GET', 'POST'])
 def user_login():
     if request.method == 'POST':
         users = db.users
-        email = request.form['email']
-        login_user = users.find_one({'email': email})
-        if login_user:
-            if check_password_hash(login_user['password'], request.form['password']):
-                session['user_id'] = str(login_user['_id'])
-                session['user_type'] = login_user['user_type']
-                session.permanent = False
-                return redirect(url_for('user_dashboard' ,username = email[0:-10]  ))
-        return 'Invalid email/password combination'
+        login_user = users.find_one({'email': request.form['email']})
+        if login_user and check_password_hash(login_user['password'], request.form['password']):
+            session['user_id'] = str(login_user['_id'])
+            session['user_type'] = login_user['user_type']
+            session.permanent = False
+            return redirect(url_for('user_dashboard', username=login_user['username']))
+        return 'Invalid email/password combination', 401
     return render_template('user_login.html')
 
 @app.route('/user/dashboard/<username>')
 def user_dashboard(username):
-    if 'user_id' in session and session['user_type'] == 'user':
-        return render_template('user_dashboard.html' , username = username)
+    if session.get('user_id') and session.get('user_type') == 'user':
+        return render_template('user_dashboard.html', username=username)
     return redirect(url_for('user_login'))
 
 @app.route('/user/sell_medicine/<username>', methods=['GET', 'POST'])
 def sell_medicine(username):
-    if 'user_id' in session and session['user_type'] == 'user':
+    if session.get('user_id') and session.get('user_type') == 'user':
         users = db.users
         if request.method == 'POST':
-            medicne_count = request.form['count']
-            medicine_price = request.form['price']
+            count = int(request.form['count'])
+            price = int(request.form['price'])
             medicine_data = {
                 'user_id': session['user_id'],
                 'name': request.form['name'],
                 'medicine_name': request.form['medicine_name'],
-                'price': math.floor(((int(medicine_price)*int(medicne_count))/100)*25)
+                'price': math.floor((price * count) * 0.25)
             }
-            users.update_one({'username': username}, {"$push": {"medicines_fs": medicine_data }})
-            return redirect(url_for('map_view' , username = username))
-        return render_template('sell_medicine.html' , username = username)
+            users.update_one(
+                {'username': username},
+                {'$push': {'medicines_fs': medicine_data}}
+            )
+            return redirect(url_for('map_view', username=username))
+        return render_template('sell_medicine.html', username=username)
     return redirect(url_for('user_login'))
 
 @app.route('/map_view/<username>')
 def map_view(username):
-    if 'user_id' in session and session['user_type'] == 'user':
+    if session.get('user_id') and session.get('user_type') == 'user':
         users = db.users
-        temp = users.find_one({'username': username})
-        medicine_listing = temp['medicines_fs']
-        shops = list(db.users.find({'user_type': 'owner'}))
+        user_doc = users.find_one({'username': username})
+        medicine_listing = user_doc.get('medicines_fs', [])
+        shops = list(users.find({'user_type': 'owner'}))
         for shop in shops:
             shop['_id'] = str(shop['_id'])
-        print('-------------------------------------------------------------')
-        print(shops)  
-        shops = json.dumps(shops)  
-        return render_template('map_view.html', medicine=medicine_listing, shops = shops , username = username)
+        return render_template(
+            'map_view.html',
+            medicine=medicine_listing,
+            shops=json.dumps(shops),
+            username=username
+        )
     return redirect(url_for('user_login'))
 
 @app.route('/map_view_owner/<username>')
 def map_view_owners(username):
-   
-        users = db.users
-        shops = list(db.users.find({'user_type': 'owner'}))
-        for shop in shops:
-            shop['_id'] = str(shop['_id'])
-        print('-------------------------------------------------------------')
-        print(shops)  
-        shops = json.dumps(shops)  
-        return render_template('map_view_owners.html',  shops = shops , username = username)
-  
-
+    users = db.users
+    shops = list(users.find({'user_type': 'owner'}))
+    for shop in shops:
+        shop['_id'] = str(shop['_id'])
+    return render_template(
+        'map_view_owners.html',
+        shops=json.dumps(shops),
+        username=username
+    )
 
 @app.route('/shop_details/<shop_id>/<username>')
-def shop_details(shop_id , username):
-    if 'user_id' in session and session['user_type'] == 'user':
+def shop_details(shop_id, username):
+    if session.get('user_id') and session.get('user_type') == 'user':
         users = db.users
-        temp = users.find_one({'username': username})
-        medicine_listing = temp['medicines_fs']
-        shop = db.users.find_one({'_id': ObjectId(shop_id), 'user_type': 'owner'})
-        return render_template('shop_details.html', shop=shop , medicines=medicine_listing , username = username)
+        user_doc = users.find_one({'username': username})
+        listing = user_doc.get('medicines_fs', [])
+        shop = users.find_one({'_id': ObjectId(shop_id), 'user_type': 'owner'})
+        return render_template(
+            'shop_details.html',
+            shop=shop,
+            medicines=listing,
+            username=username
+        )
     return redirect(url_for('user_login'))
 
 @app.route('/resell_medicine/<owner_username>/<user_username>/<medicine_name>')
-def resell_medicine(owner_username, user_username , medicine_name):
-    if 'user_id' in session and session['user_type'] == 'user':
-        add_owner_list(owner_username , user_username + " " + medicine_name)
-        return render_template('resell_success.html' , username = user_username)
+def resell_medicine(owner_username, user_username, medicine_name):
+    if session.get('user_id') and session.get('user_type') == 'user':
+        add_owner_list(owner_username, f"{user_username} {medicine_name}")
+        return render_template('resell_success.html', username=user_username)
     return redirect(url_for('user_login'))
 
 @app.route('/owner/accepted/<owner_username>/<user_username>')
 def owner_accepted(owner_username, user_username):
-    remove_owner_list(owner_username , user_username)
+    remove_owner_list(owner_username, user_username)
     return 'Accepted sell request Successfully'
 
 @app.route('/sell_requests/<owner_username>')
 def sell_requests(owner_username):
-   
-        users = db.users
-        owner = users.find_one({'username': owner_username})
-        sell_requests = owner['sell_requests']
-        return render_template('owner_waitlist.html', sell_requests=sell_requests , owner_username = owner_username)
+    users = db.users
+    owner = users.find_one({'username': owner_username})
+    return render_template(
+        'owner_waitlist.html',
+        sell_requests=owner.get('sell_requests', []),
+        owner_username=owner_username
+    )
 
 @app.route('/medicines_bought/<owner_username>')
 def medicines_bought(owner_username):
-   
-        users = db.users
-        owner = users.find_one({'username': owner_username})
-        medi_bought = owner['medicines_bought']
-        return render_template('owner_bought.html', medi_bought = medi_bought , owner_username = owner_username)
+    users = db.users
+    owner = users.find_one({'username': owner_username})
+    return render_template(
+        'owner_bought.html',
+        medi_bought=owner.get('medicines_bought', []),
+        owner_username=owner_username
+    )
 
 @app.route('/medicines_sold/<user_username>')
 def medicines_sold(user_username):
-   
-        users = db.users
-        owner = users.find_one({'username': user_username})
-        medi_sold = owner['medicines_sold']
-        return render_template('user_sold.html', medi_sold = medi_sold , owner_username = user_username)
-            
-
-def add_owner_list(owner_username , user_username):
     users = db.users
-    users.update_one({'username': owner_username}, {"$push": {"sell_requests": user_username}})
-    
-def remove_owner_list(owner_username , user_username):
-    users = db.users
-    users.update_one({'username': owner_username}, {"$pull": {"sell_requests": user_username}})
-    users.update_one({'username': owner_username}, {"$push": {"medicines_bought": user_username}})
-    users.update_one({'username': user_username.split()[0]}, {"$push": {"medicines_sold" : owner_username + ' ' + user_username.split()[0]}})
+    user = users.find_one({'username': user_username})
+    return render_template(
+        'user_sold.html',
+        medi_sold=user.get('medicines_sold', []),
+        owner_username=user_username
+    )
 
+# Helper functions
+
+def add_owner_list(owner_username, entry):
+    db.users.update_one(
+        {'username': owner_username},
+        {'$push': {'sell_requests': entry}}
+    )
+
+
+def remove_owner_list(owner_username, user_entry):
+    db.users.update_one(
+        {'username': owner_username},
+        {'$pull': {'sell_requests': user_entry}}
+    )
+    db.users.update_one(
+        {'username': owner_username},
+        {'$push': {'medicines_bought': user_entry}}
+    )
+    user_name = user_entry.split()[0]
+    db.users.update_one(
+        {'username': user_name},
+        {'$push': {'medicines_sold': f"{owner_username} {user_name}"}}
+    )
 
 @app.route('/owner/register', methods=['GET', 'POST'])
 def owner_register():
     if request.method == 'POST':
-        owners = db.users
-        existing_owner = owners.find_one({'email': request.form['email']})
-        if existing_owner is None:
-            email = request.form['email']
-            hashpass = generate_password_hash(request.form['password'])
-            owners.insert_one({
+        users = db.users
+        if users.find_one({'email': request.form['email']}) is None:
+            hashed = generate_password_hash(request.form['password'])
+            users.insert_one({
                 'name': request.form['name'],
-                'email': email,
-                'password': hashpass,
+                'email': request.form['email'],
+                'username': request.form['email'][:-10],
+                'password': hashed,
                 'user_type': 'owner',
                 'shop_name': request.form['shop_name'],
                 'latitude': request.form['latitude'],
                 'longitude': request.form['longitude'],
-                'username': email[0:-10],
-                'sell_requests' : [] ,
+                'sell_requests': [],
                 'medicines_bought': []
             })
             return redirect(url_for('owner_login'))
-        return 'Email already registered'
+        return 'Email already registered', 400
     return render_template('owner_register.html')
 
 @app.route('/owner/login', methods=['GET', 'POST'])
 def owner_login():
     if request.method == 'POST':
-        owners = db.users
-        email = request.form['email']
-        login_owner = owners.find_one({'email': email, 'user_type': 'owner'})
-        if login_owner:
-            if check_password_hash(login_owner['password'], request.form['password']):
-                session['user_id'] = str(login_owner['_id'])
-                session['user_type'] = login_owner['user_type']
-                return redirect(url_for('owner_dashboard' , username = email[0:-10]))
-        return 'Invalid email/password combination'
+        users = db.users
+        login_owner = users.find_one({'email': request.form['email'], 'user_type': 'owner'})
+        if login_owner and check_password_hash(login_owner['password'], request.form['password']):
+            session['user_id'] = str(login_owner['_id'])
+            session['user_type'] = login_owner['user_type']
+            return redirect(url_for('owner_dashboard', username=login_owner['username']))
+        return 'Invalid email/password combination', 401
     return render_template('owner_login.html')
 
 @app.route('/owner/dashboard/<username>')
 def owner_dashboard(username):
-    if 'user_id' in session and session['user_type'] == 'owner':
-        return render_template('owner_dashboard.html' , username = username)
+    if session.get('user_id') and session.get('user_type') == 'owner':
+        return render_template('owner_dashboard.html', username=username)
     return redirect(url_for('owner_login'))
-
-
 
 @app.route('/get_current_location', methods=['POST'])
 def get_current_location():
-    latitude = request.json['latitude']
-    longitude = request.json['longitude']
-    return jsonify({'latitude': latitude, 'longitude': longitude})
+    data = request.json
+    return jsonify({
+        'latitude': data.get('latitude'),
+        'longitude': data.get('longitude')
+    })
 
 @app.route('/logout')
 def logout():
-     session['user_type'] = 'homepage'
-     return render_template('index.html')
+    session.clear()
+    return redirect(url_for('index'))
 
 @app.route('/contactus/')
 def contactus():
@@ -243,7 +267,7 @@ def contactus():
 
 @app.route('/contactus/<username>')
 def contactus_render(username):
-    return render_template('contactus.html' , username = username)
+    return render_template('contactus.html', username=username)
 
 @app.route('/user/terms_conditions')
 def user_terms_conditions():
