@@ -9,8 +9,17 @@ import math
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-urls = "mongodb+srv://vinjamurimihira:Vmihira2004@askmebot.y3tx6.mongodb.net/?retryWrites=true&w=majority&appName=AskMeBot"
-mongo = MongoClient(urls)
+#urls = "mongodb+srv://vinjamurimihira:Vmihira2004@askmebot.y3tx6.mongodb.net/?retryWrites=true&w=majority&appName=AskMeBot"
+MONGO_URI = (
+    "mongodb+srv://"
+    "vinjamurimihira:Vmihira2004"
+    "@askmebot.y3tx6.mongodb.net"
+    "/?authSource=admin"
+    "&retryWrites=true&w=majority"
+    "&appName=AskMeBot"
+)
+mongo = MongoClient(MONGO_URI)
+db = mongo['askmebot']
 
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
