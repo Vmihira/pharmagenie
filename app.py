@@ -32,6 +32,7 @@ def services_render(username):
 
 @app.route('/user/register', methods=['GET', 'POST'])
 def user_register():
+    print("========================================================================  TESTING REGISTRATION =====================================")
     if request.method == 'POST':
         users = mongo.db.users
         existing_user = users.find_one({'email': request.form['email']})
